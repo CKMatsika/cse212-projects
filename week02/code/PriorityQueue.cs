@@ -24,15 +24,26 @@
 
         // Find the index of the item with the highest priority to remove
         var highPriorityIndex = 0;
-        for (int index = 1; index < _queue.Count - 1; index++)
+        // Start at index 1 and loop through the entire queue
+        // BUG FIX 1: The loop must go to the end of the list (_queue.Count).
+        for (int index = 1; index < _queue.Count; index++)
         {
-            if (_queue[index].Priority >= _queue[highPriorityIndex].Priority)
+            // BUG FIX 2: Use > instead of >= to enforce FIFO for tie-breaking.
+            // If priorities are equal, we keep the one with the lower index (the one added first).
+            if (_queue[index].Priority > _queue[highPriorityIndex].Priority)
+            {
                 highPriorityIndex = index;
+            }
         }
 
-        // Remove and return the item with the highest priority
-        var value = _queue[highPriorityIndex].Value;
-        return value;
+        // Retrieve the item to be dequeued
+        var itemToReturn = _queue[highPriorityIndex];
+        
+        // BUG FIX 3: The item must be removed from the queue.
+        _queue.RemoveAt(highPriorityIndex);
+
+        // Return the value of the removed item
+        return itemToReturn.Value;
     }
 
     public override string ToString()
