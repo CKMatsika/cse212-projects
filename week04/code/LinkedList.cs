@@ -1,3 +1,5 @@
+using System.Collections;
+
 public class LinkedList : IEnumerable<int>
 {
     private Node? _head;
@@ -5,11 +7,11 @@ public class LinkedList : IEnumerable<int>
 
     public void InsertHead(int value)
     {
+        // TODO: Insert new node at head
         Node newNode = new(value);
-        if (_head is null)
+        if (_head == null)
         {
-            _head = newNode;
-            _tail = newNode;
+            _head = _tail = newNode;
         }
         else
         {
@@ -21,11 +23,11 @@ public class LinkedList : IEnumerable<int>
 
     public void InsertTail(int value)
     {
+        // TODO: Insert new node at tail
         Node newNode = new(value);
-        if (_tail is null)
+        if (_tail == null)
         {
-            _head = newNode;
-            _tail = newNode;
+            _head = _tail = newNode;
         }
         else
         {
@@ -37,36 +39,37 @@ public class LinkedList : IEnumerable<int>
 
     public void RemoveHead()
     {
+        // TODO: Remove node at head
         if (_head == _tail)
         {
-            _head = null;
-            _tail = null;
+            _head = _tail = null;
         }
-        else if (_head is not null)
+        else if (_head != null)
         {
-            _head.Next!.Prev = null;
             _head = _head.Next;
+            _head!.Prev = null;
         }
     }
 
     public void RemoveTail()
     {
+        // TODO: Remove node at tail
         if (_tail == _head)
         {
-            _head = null;
-            _tail = null;
+            _head = _tail = null;
         }
-        else if (_tail is not null)
+        else if (_tail != null)
         {
-            _tail.Prev!.Next = null;
             _tail = _tail.Prev;
+            _tail!.Next = null;
         }
     }
 
     public void InsertAfter(int value, int newValue)
     {
+        // TODO: Insert newValue after node with value
         Node? curr = _head;
-        while (curr is not null)
+        while (curr != null)
         {
             if (curr.Data == value)
             {
@@ -82,18 +85,17 @@ public class LinkedList : IEnumerable<int>
                     curr.Next!.Prev = newNode;
                     curr.Next = newNode;
                 }
-
                 return;
             }
-
             curr = curr.Next;
         }
     }
 
     public void Remove(int value)
     {
+        // TODO: Remove node with matching value
         Node? curr = _head;
-        while (curr is not null)
+        while (curr != null)
         {
             if (curr.Data == value)
             {
@@ -118,8 +120,9 @@ public class LinkedList : IEnumerable<int>
 
     public void Replace(int oldValue, int newValue)
     {
+        // TODO: Replace node value
         Node? curr = _head;
-        while (curr is not null)
+        while (curr != null)
         {
             if (curr.Data == oldValue)
             {
@@ -129,28 +132,28 @@ public class LinkedList : IEnumerable<int>
         }
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return this.GetEnumerator();
-    }
-
     public IEnumerator<int> GetEnumerator()
     {
-        var curr = _head;
-        while (curr is not null)
+        Node? current = _head;
+        while (current != null)
         {
-            yield return curr.Data;
-            curr = curr.Next;
+            yield return current.Data;
+            current = current.Next;
         }
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 
     public IEnumerable Reverse()
     {
-        var curr = _tail;
-        while (curr is not null)
+        Node? current = _tail;
+        while (current != null)
         {
-            yield return curr.Data;
-            curr = curr.Prev;
+            yield return current.Data;
+            current = current.Prev;
         }
     }
 
@@ -161,11 +164,11 @@ public class LinkedList : IEnumerable<int>
 
     public Boolean HeadAndTailAreNull()
     {
-        return _head is null && _tail is null;
+        return _head == null && _tail == null;
     }
 
     public Boolean HeadAndTailAreNotNull()
     {
-        return _head is not null && _tail is not null;
+        return _head != null && _tail != null;
     }
 }
