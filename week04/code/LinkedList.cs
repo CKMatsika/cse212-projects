@@ -1,152 +1,222 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 
-public class LinkedList<T> : IEnumerable<T>
+public class LinkedList : IEnumerable<int>
 {
-    private class Node
-    {
-        public T Value;
-        public Node Next;
+    private Node? _head;
+    private Node? _tail;
 
-        public Node(T value)
-        {
-            Value = value;
-            Next = null;
-        }
-    }
-
-    private Node head;
-
-    public LinkedList()
-    {
-        head = null;
-    }
-
-    // Insert at the head
-    public void InsertHead(T value)
+    /// <summary>
+    /// Insert a new node at the head (beginning) of the list
+    /// </summary>
+    public void InsertHead(int value)
     {
         Node newNode = new Node(value);
-        newNode.Next = head;
-        head = newNode;
+        
+        if (_head is null)
+        {
+            _head = newNode;
+            _tail = newNode;
+        }
+        else
+        {
+            newNode.Next = _head;
+            _head.Prev = newNode; 
+            _head = newNode;
+        }
     }
 
-    //  Insert at the tail
-    public void InsertTail(T value)
+    /// <summary>
+    /// Insert a new node at the tail (end) of the list
+    /// </summary>
+    public void InsertTail(int value)
     {
         Node newNode = new Node(value);
-        if (head == null)
+        
+        if (_head is null)
         {
-            head = newNode;
-            return;
+            _head = newNode;
+            _tail = newNode;
         }
-
-        Node current = head;
-        while (current.Next != null)
+        else
         {
-            current = current.Next;
+            _tail!.Next = newNode; 
+            newNode.Prev = _tail; 
+            _tail = newNode; 
         }
-
-        current.Next = newNode;
     }
 
-    //  Remove head
+    /// <summary>
+    /// Remove the node at the head of the list
+    /// </summary>
     public void RemoveHead()
     {
-        if (head != null)
+        if (_head is null)
         {
-            head = head.Next;
+            return;
+        }
+
+        if (_head == _tail)
+        {
+            _head = null;
+            _tail = null;
+        }
+        else
+        {
+            _head = _head.Next;
+            if (_head is not null)
+                _head.Prev = null;
         }
     }
 
-    //  Remove tail
+    /// <summary>
+    /// Remove the node at the tail of the list
+    /// </summary>
     public void RemoveTail()
     {
-        if (head == null) return;
-
-        if (head.Next == null)
+        if (_head is null)
         {
-            head = null;
             return;
         }
-
-        Node current = head;
-        while (current.Next.Next != null)
+        
+        if (_head == _tail)
         {
-            current = current.Next;
+            _head = null;
+            _tail = null;
         }
-
-        current.Next = null;
+        else
+        {
+            _tail = _tail!.Prev;
+            if (_tail is not null)
+                _tail.Next = null;
+        }
     }
 
-    //  Remove a specific value
-    public void Remove(T value)
+    /// <summary>
+    /// Remove the first node that contains the given value
+    /// </summary>
+    public void Remove(int value)
     {
-        if (head == null) return;
+        if (_head is null) return;
 
-        if (EqualityComparer<T>.Default.Equals(head.Value, value))
-        {
-            RemoveHead();
-            return;
-        }
+        Node? current = _head;
 
-        Node current = head;
-        while (current.Next != null)
+        while (current is not null)
         {
-            if (EqualityComparer<T>.Default.Equals(current.Next.Value, value))
+            if (current.Data == value)
             {
-                current.Next = current.Next.Next;
-                return;
+                if (current == _head)
+                {
+                    RemoveHead();
+                    return; 
+                }
+                if (current == _tail)
+                {
+                    RemoveTail();
+                    return;
+                }
+                
+                // This handles the middle node case
+                if(current.Prev is not null)
+                    current.Prev.Next = current.Next;
+                if(current.Next is not null)
+                    current.Next.Prev = current.Prev;
+                
+                return; 
             }
             current = current.Next;
         }
     }
 
-    // Replace all occurrences of oldValue with newValue
-    public void Replace(T oldValue, T newValue)
+    /// <summary>
+    /// Replace all instances of a value with a new value
+    /// </summary>
+    public void Replace(int oldValue, int newValue)
     {
-        Node current = head;
-        while (current != null)
+        Node? current = _head;
+        
+        while (current is not null)
         {
-            if (EqualityComparer<T>.Default.Equals(current.Value, oldValue))
+            if (current.Data == oldValue)
             {
-                current.Value = newValue;
+                current.Data = newValue;
             }
+            
             current = current.Next;
         }
     }
 
-    // Forward iteration
-    public IEnumerator<T> GetEnumerator()
+    /// <summary>
+    /// Returns an enumerator that iterates backward through the list.
+    /// </summary>
+    public IEnumerable<int> Reverse()
     {
-        Node current = head;
-        while (current != null)
+        Node? current = _tail;
+
+        while (current is not null)
         {
-            yield return current.Value;
-            current = current.Next;
+            yield return current.Data;
+            current = current.Prev;
         }
     }
 
+    /// <summary>
+    /// Returns an enumerator that iterates forward through the list.
+    /// </summary>
+    public IEnumerator<int> GetEnumerator()
+    {
+        Node? current = _head;
+
+        while (current is not null)
+        {
+            yield return current.Data;
+            current = current.Next;
+        }
+    }
+    
+    /// <summary>
+    /// This is a private implementation for the non-generic IEnumerable interface.
+    /// </summary>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
     }
+    
+    // The methods below are helpers for the test cases and should not be modified.
+    
+    public override string ToString() {
+        return "<LinkedList>{" + string.Join(", ", this) + "}";
+    }
 
-    //  Reverse iteration
-    public IEnumerable<T> Reverse()
-    {
-        Stack<T> stack = new Stack<T>();
-        Node current = head;
-        while (current != null)
-        {
-            stack.Push(current.Value);
+    // You can add these helper methods if they are not in another file.
+    // The test files seem to call them, so they must exist somewhere.
+    // If they are in another file provided by the assignment, you don't need them here.
+    public bool HeadAndTailAreNull() {
+        return _head is null && _tail is null;
+    }
+
+    public bool HeadAndTailAreNotNull() {
+        return _head is not null && _tail is not null;
+    }
+    
+    // This is a special method needed for one of the tests.
+    public void InsertAfter(int valueToFind, int valueToInsert) {
+        if (_head is null) return;
+        var current = _head;
+        while (current is not null) {
+            if (current.Data == valueToFind) {
+                var newNode = new Node(valueToInsert) { Next = current.Next, Prev = current };
+                if (current.Next is not null) {
+                    current.Next.Prev = newNode;
+                }
+                current.Next = newNode;
+                if (current == _tail) {
+                    _tail = newNode;
+                }
+                return;
+            }
             current = current.Next;
-        }
-
-        while (stack.Count > 0)
-        {
-            yield return stack.Pop();
         }
     }
 }
