@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq; // Required for .Cast<int>()
 
 public class BinarySearchTree : IEnumerable<int>
 {
@@ -9,14 +11,12 @@ public class BinarySearchTree : IEnumerable<int>
     /// </summary>
     public void Insert(int value)
     {
-        // Create new node
-        Node newNode = new(value);
-        // If the list is empty, then point both head and tail to the new node.
+        // If the tree is empty, then the new value becomes the root
         if (_root is null)
         {
-            _root = newNode;
+            _root = new Node(value);
         }
-        // If the list is not empty, then only head will be affected.
+        // If the tree is not empty, use the node's insert function
         else
         {
             _root.Insert(value);
@@ -67,6 +67,8 @@ public class BinarySearchTree : IEnumerable<int>
 
     /// <summary>
     /// Iterate backward through the BST.
+    /// Note: The instructions refer to this as Reversed(), but the provided
+    /// template file has Reverse(). Do not change the method name.
     /// </summary>
     public IEnumerable Reverse()
     {
@@ -80,7 +82,20 @@ public class BinarySearchTree : IEnumerable<int>
 
     private void TraverseBackward(Node? node, List<int> values)
     {
-        // TODO Problem 3
+        // Start Problem 3
+        
+        // Base case: If the node is null, we've reached the end of a branch.
+        if (node is not null)
+        {
+            // 1. Traverse the right subtree first (for larger values).
+            TraverseBackward(node.Right, values);
+            
+            // 2. Add the current node's data to the list.
+            values.Add(node.Data);
+            
+            // 3. Traverse the left subtree last (for smaller values).
+            TraverseBackward(node.Left, values);
+        }
     }
 
     /// <summary>
